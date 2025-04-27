@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LuckyAid - Claim your crypto aid</title>
+</head>
+<body>
+  <h1>íº€ LuckyAid - Claim Your Crypto Microgrant</h1>
+  <button id="claimBtn">Claim Your Aid</button>
+  <p id="status"></p>
+
+  <script src="https://unpkg.com/@polkadot/api@latest/dist/polkadot-api.min.js"></script>
+  <script>
+    const CONTRACT_ADDRESS = "PASTE_YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE";
+    const CONTRACT_ABI = PASTE_YOUR_ABI_JSON_HERE;
+
+    async function claimTokens() {
+      const { ApiPromise, WsProvider } = polkadotApi;
+
+      const provider = new WsProvider('wss://rpc-asset-hub.polkadot.io');
+      const api = await ApiPromise.create({ provider });
+
+      const injector = await window.injectedWeb3['polkadot-js'].injector('your-address-here');
+
+      const contract = new api.tx.contracts.call(
+        CONTRACT_ADDRESS,
+        0,
+        5000000000000,
+        CONTRACT_ABI.messages.claim()
+      );
+
+      await contract.signAndSend('your-address-here', { signer: injector.signer }, ({ status }) => {
+        if (status.isInBlock) {
+          document.getElementById('status').innerText = "âœ… Aid Claimed!";
+        }
+      });
+    }
+
+    document.getElementById('claimBtn').addEventListener('click', claimTokens);
+  </script>
+</body>
+</html>
